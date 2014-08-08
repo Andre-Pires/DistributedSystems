@@ -1,0 +1,84 @@
+package registofatura.ws.domain;
+
+class RegistoFatura {
+    int nextNumSerie;
+}
+
+class Fatura {
+    DateTime data;
+    int numSeqFatura;
+    int numSerie;
+    int nifEmissor;
+    String nomeEmissor;
+    Integer nifCliente;
+    int iva;
+    int total;
+}
+
+class ItemFatura {
+    String descricao;
+    int quantidade;
+    int preco;
+}
+
+class Serie {
+    int nifEmissor;
+    int numSerie;
+    DateTime validoAte;
+}
+
+class Emissor {
+    String nome;
+    int nif;
+}
+
+class Cliente {
+    String nome;
+    int nif;
+}
+
+/* Relações */
+relation RegistoFaturaContainsSerie {
+    RegistoFatura playsRole registoFatura {
+        multiplicity 1;
+    }
+    Serie playsRole serie {
+        multiplicity *;
+    }
+}
+
+relation RegistoFaturaContainsCliente {
+    RegistoFatura playsRole registoFatura {
+        multiplicity 1;
+    }
+    Cliente playsRole cliente {
+        multiplicity *;
+    }
+}
+
+relation RegistoFaturaContainsEmissor {
+    RegistoFatura playsRole registoFatura {
+        multiplicity 1;
+    }
+    Emissor playsRole emissor {
+        multiplicity *;
+    }
+}
+
+relation FaturaContainsItemFatura {
+    Fatura playsRole fatura {
+        multiplicity 1;
+    }
+    ItemFatura playsRole itemFatura {
+        multiplicity *;
+    }
+}
+
+relation SerieContainsFatura {
+    Serie playsRole serie {
+        multiplicity 1;
+    }
+    Fatura playsRole fatura {
+        multiplicity 0..4;
+    }
+}

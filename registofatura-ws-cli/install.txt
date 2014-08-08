@@ -1,0 +1,77 @@
+﻿Projecto de Sistemas Distribuídos
+
+Primeira entrega - 2014-04-11 - 20h
+
+Grupo de SD 29
+
+Repositório T-04-19-29
+
+André Pires 		68593 	andrepires91@hotmail.com
+Alexandre Pimentel 	70554 	alexandre__pimentel@hotmail.com
+Filipe Bento 		71037 	filipe.simoes.bento@gmail.com
+
+-------------------------------------------------------------------------------
+
+Serviço RegistoFatura
+
+Instruções de instalação para Windows
+
+Garantir que MYSQL_HOME está nas variáveis de ambiente com o directório de instalação
+Garantir que CATALINA_HOME está ...
+Garantir que PATH tem as variáveis de ambiente "%MYSQL_HOME%/bin" e "%CATALINA_HOME%/bin"
+
+[1] Iniciar servidores
+
+MySQL:
+Garantir que o serviço MySQL está a ser executado
+
+JUDDI:
+> startup.bat
+
+
+[2] Criar directoria de trabalho
+
+mkdir temp
+cd temp
+mkdir SD
+cd SD
+
+
+[3] Obter versão entregue
+
+
+svn co svn+ssh://ist1xxxxx@sigma.ist.utl.pt/afs/ist.utl.pt/groups/leic-es/svn/T-04-19-29/registofatura-ws/tags/R_1
+svn co svn+ssh://ist1xxxxx@sigma.ist.utl.pt/afs/ist.utl.pt/groups/leic-es/svn/T-04-19-29/registofatura-ws-cli/tags/R_1
+
+[4] Preparar dados de teste
+
+mysql -u root -p
+[inserir password]
+CREATE USER 'rest'@'localhost' IDENTIFIED BY 'r3st';
+CREATE DATABASE faturadb;
+GRANT ALL PRIVILEGES ON faturadb . * TO 'rest'@'localhost';
+exit
+
+
+[5] Construir e executar servidor
+
+cd registofatura-ws
+ant clean clean-db populate run
+
+
+[6] Construir cliente
+
+cd ../registofatura-ws-cli
+ant clean compile
+
+
+-------------------------------------------------------------------------------
+
+Instruções de teste:
+
+Fazer
+"ant run"
+no cliente corre os testes Junit
+
+-------------------------------------------------------------------------------
+FIM

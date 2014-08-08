@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="registofatura-ws" default="build" basedir=".">
+
+	<description>
+        Standalone Java Web Service build file - contract first
+
+        An Ant project defines targets that execute tasks
+        parameterized by properties and paths.
+
+        More information at: http://ant.apache.org/manual/
+    </description>
+
+	<!-- properties and paths -->
+	<property name="ant.build.javac.source" value="1.6" />
+	<property name="ant.build.javac.target" value="1.6" />
+
+	<property name="javac.encoding" value="UTF-8" />
+	<property name="java.file.encoding" value="UTF-8" />
+	<property name="src.rel-dir" value="src" />
+	<property name="build.rel-dir" value="build" />
+	<property name="lib.rel-dir" value="../lib" />
+
+	<property name="main.src.rel-dir" value="${src.rel-dir}/registofatura" />
+
+	<property name="dml.filename" value="domain.dml" />
+
+	<property name="java.main.src.rel-dir" value="${src.rel-dir}" />
+	<property name="dml.src.rel-dir" value="${main.src.rel-dir}/dml" />
+	<property name="generated-src.build.rel-dir" value="${build.rel-dir}/src" />
+	<property name="classes.build.rel-dir" value="${build.rel-dir}/classes" />
+
+	<property name="test.src.rel-dir" value="${src.rel-dir}/test" />
+	<property name="java.test.src.rel-dir" value="${test.src.rel-dir}/java" />
+
+	<property name="dml.rel-file" value="${dml.src.rel-dir}/${dml.filename}" />
+
+	<property name="sql.driver" value="com.mysql.jdbc.Driver" />
+	<property name="sql.db" value="faturadb" />
+	<property name="sql.url" value="jdbc:mysql://localhost:3306" />
+	<property name="sql.user" value="rest" />
+	<property name="sql.pass" value="r3st" />
+	<property name="sql.alias" value="//localhost:3306/faturadb" />
+	
+	<!-- SD properties and paths -->
+
+	<property name="src.dir" location="src" />
+	<property name="build.dir" location="build" />
+	<property name="build.classes.dir" location="${build.dir}/classes" />
+	<property name="build.src.dir" location="${build.dir}/src" />
+
+
+	<path id="project.classpath">
+		<!-- compiled classes -->
+		<pathelement location="${build.classes.dir}" />
+		<fileset dir="../lib">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<property name="uddi.url" value="http://localhost:8081" />
+	
+	<property name="ws.name" value="T29RegistoFatura" />
+	<property name="ws.url" value="http://193.136.167.46:8080/RegistoFatura-ws/endpoint" />
+	<property name="wsdl.file" value="${src.dir}/RegistoFatura.wsdl" />
+	<makeurl property="wsdl.url" file="${wsdl.file}" />
+
+	<property name="run.mainclass" value="registofatura.ws.impl.RegistoFaturaMain" />
+	<property name="run.args" value="${uddi.url} '${ws.name}' ${ws.url} ${sql.alias}" />
+
+
+	<!-- targets -->
+
+	<target name="runMock" depends="compile"
+	        description="Run program" >
+	        <java classname="registofatura.tests.TesteReplicacao" fork="true" failonerror="true">
+	            <classpath refid="project.classpath" />
+	        </java>
+	    </target>
+	<!-- targets DML-->
+
+	<target name="clean-db" description="Recreated project's database">
+		<echo message="Creating SQL database '${sql.db}'" />
+		<sql driver="${sql.driver}" url="${sql.url}" userid="${sql.user}" password="${sql.pass}">
+			<classpath refid="project.classpath" />
+                DROP DATABASE IF EXISTS ${sql.db};
+            </sql>
+		<sql driver="${sql.driver}" url="${sql.url}" userid="${sql.user}" password="${sql.pass}">
+			<classpath refid="project.classpath" />
+                CREATE DATABASE IF NOT EXISTS ${sql.db};
+            </sql>
+	</target>
+
+	<taskdef resource="dml-ant.xml" classpathref="project.classpath" />
+	<target name="prepare">
+		<echo message="Preparing the project for build..." />
+		<mkdir dir="${classes.build.rel-dir}" />
+	</target>
+
+	<target name="generate-domain" depends="prepare">
+		<echo message="Generating base domain classes..." />
+		<echo message="Using: ${dml.rel-file}" />
+		<dml-domain-generator destDirectory="${java.main.src.rel-dir}" destDirectoryBase="${generated-src.build.rel-dir}">
+			<fileset file="${dml.rel-file}" />
+		</dml-domain-generator>
+	</target>
+
+	<target name="compile-domain" depends="generate-domain">
+		<echo message="Compiling sources..." />
+		<javac destdir="${classes.build.rel-dir}" debug="true" debuglevel="lines,vars,source" optimize="true" deprecation="true" verbose="false" includeantruntime="false" includes="src/registofatura/ws/domain/*">
+			<classpath refid="project.classpath" />
+			<src>
+				<pathelement path="${generated-src.build.rel-dir}:${java.main.src.rel-dir}" />
+			</src>
+			<compilerarg line="" />
+		</javac>
+	</target>
+
+	<target name="instrument-classes" depends="compile">
+		<echo message="Injecting FenixFramework Voodoo Magic..." />
+		<dml-post-processor dir="${classes.build.rel-dir}">
+			<fileset file="${dml.rel-file}" />
+			<classpath refid="project.classpath" />
+		</dml-post-processor>
+	</target>
+
+	<target name="show" description="Show property values">
+		<echo message="ant.project.name = ${ant.project.name}" />
+		<echo message="" />
+		<echo message="src.dir = ${src.dir}" />
+		<echo message="build.dir = ${build.dir}" />
+		<echo message="build.classes.dir = ${build.classes.dir}" />
+		<echo message="build.src.dir = ${build.classes.dir}" />
+		<echo message="" />
+		<pathconvert property="project.classpath" refid="project.classpath" />
+		<echo message="project.classpath= ${project.classpath}" />
+		<echo message="" />
+		<echo message="ws.name= ${ws.name}" />
+		<echo message="wsdl.url = ${wsdl.url}" />
+		<echo message="ws.url = ${ws.url}" />
+		<echo message="" />
+		<echo message="run.mainclass = ${run.mainclass}" />
+		<echo message="run.args = ${run.args}" />
+	</target>
+
+	<target name="init">
+		<!-- description="Create temporary work directories" -->
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.classes.dir}" />
+		<mkdir dir="${build.src.dir}" />
+	</target>
+
+	<target name="clean" description="Delete temporary work directory">
+		<delete dir="${build.dir}" />
+	</target>
+
+	<target name="prepare-resources" depends="init">
+		<!-- description="Include resource files in compiled program" -->
+		<copy todir="${build.classes.dir}" overwrite="true">
+			<fileset dir="${src.dir}" excludes="**/*.java" />
+		</copy>
+		<!--replace dir="${build.classes.dir}" excludes="**/*.class" summary="true">
+            <replacefilter token="@example-token@" value="${example-property}" />
+        </replace-->
+	</target>
+
+	<target name="-wsinit" depends="init">
+		<property name="wsdl.local.file" value="${build.src.dir}/${ws.name}.wsdl" />
+		<!-- check is wsimport completed successfully -->
+		<property name="wsimport.success.file" value="${build.dir}/${ws.name}.wsimport" />
+		<available property="wsimport.success" file="${wsimport.success.file}" />
+		<!-- wsimport should execute if it did not complete successfully -->
+		<condition property="wsimport.flag">
+			<not>
+				<isset property="wsimport.success" />
+			</not>
+		</condition>
+	</target>
+
+	<target name="wsimport" depends="-wsinit" if="wsimport.flag" description="Generate web service server">
+		<!-- create local copy of WSDL -->
+		<get src="${wsdl.url}" dest="${wsdl.local.file}" maxtime="30" retries="1" />
+		<!-- generate web service classes using local WSDL -->
+		<makeurl property="wsdl.local.url" file="${wsdl.local.file}" />
+		<exec executable="wsimport" failonerror="true">
+			<!-- assumes that wsimport tool is available in PATH environment property -->
+			<arg value="-d" />
+			<arg value="${build.classes.dir}" />
+			<arg value="-s" />
+			<arg value="${build.src.dir}" />
+			<arg value="${wsdl.local.url}" />
+		</exec>
+		<touch file="${wsimport.success.file}" />
+	</target>
+
+	<target name="compile" depends="compile-domain,init,prepare-resources,wsimport" description="Compile source code">
+		<javac srcdir="${src.dir}" destdir="${build.classes.dir}" includeantruntime="false" debug="true">
+			<classpath refid="project.classpath" />
+			<src>
+				<pathelement path="${generated-src.build.rel-dir}:${java.main.src.rel-dir}" />
+			</src>
+			<compilerarg line="" />
+		</javac>
+	</target>
+
+	<target name="run" depends="instrument-classes" description="Run program">
+		<java classname="${run.mainclass}" fork="true" failonerror="true">
+			<arg line="${run.args}" />
+			<classpath refid="project.classpath" />
+		</java>
+	</target>
+
+	<import file="script.xml" optional="true" />
+
+	<target name="build" depends="compile" description="Build project" />
+
+	<target name="rebuild" depends="clean,build" />
+
+
+	<target name="populate" depends="instrument-classes,populate2,populate3" description="Populate database">
+	        <java classname="registofatura.ws.init.FaturaServerSetup" fork="true">
+	            <arg value="faturadb"/>
+	            <classpath>
+	                <path refid="project.classpath" />
+	            </classpath>
+	        </java>
+	    </target>
+	
+	
+	<target name="populate2" depends="instrument-classes" description="Populate database">
+	        <java classname="registofatura.ws.init.FaturaServerSetup" fork="true">
+	            <arg value="faturadb2"/>
+	            <classpath>
+	                <path refid="project.classpath" />
+	            </classpath>
+	        </java>
+	    </target>
+	
+	<target name="populate3" depends="instrument-classes" description="Populate database">
+	        <java classname="registofatura.ws.init.FaturaServerSetup" fork="true">
+	            <arg value="faturadb3"/>
+	            <classpath>
+	                <path refid="project.classpath" />
+	            </classpath>
+	        </java>
+	    </target>
+	
+	<target name="populate4" depends="instrument-classes" description="Populate database">
+	        <java classname="registofatura.ws.init.FaturaServerSetup" fork="true">
+	            <arg value="faturadb4"/>
+	            <classpath>
+	                <path refid="project.classpath" />
+	            </classpath>
+	        </java>
+	    </target>
+
+	<target name="populate5" depends="instrument-classes" description="Populate database">
+	            <java classname="registofatura.ws.init.FaturaServerSetup" fork="true">
+	                <arg value="faturadb5"/>
+	                <classpath>
+	                    <path refid="project.classpath" />
+	                </classpath>
+	            </java>
+	        </target>
+
+
+</project>

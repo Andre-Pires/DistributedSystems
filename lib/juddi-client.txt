@@ -1,0 +1,18 @@
+The libraries required for the classpath of a JUDDI client are the following:
+
+[JBoss 7 module] JAR+
+
+[javax.xml.registry.api] jboss-jaxr-api_1.0_spec-1.0.1.Final.jar
+[org.apache.commons.collections] commons-collections-3.2.1.jar
+[org.apache.commons.configuration] commons-configuration-1.6.jar
+[org.apache.commons.lang] commons-lang-2.6.jar
+[org.apache.juddi.juddi-client] juddi-client-3.1.3.jar
+[org.apache.juddi.scout] scout-1.2.6.jar
+[org.apache.juddi.uddi-ws] uddi-ws-3.1.3.jar
+[org.slf4j] slf4j-api-1.6.1.jar
+[org.slf4j.jcl-over-slf4j-org.apache.commons.logging] jcl-over-slf4j-1.6.1.jar
+[] slf4j-nop-1.6.1.jar
+
+--
+2014-03-07
+Miguel.Pardal@tecnico.ulisboa.pt

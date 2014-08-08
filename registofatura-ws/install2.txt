@@ -1,0 +1,67 @@
+Projecto de Sistemas Distribuídos
+
+Segunda entrega - 2014-05-14 - 20h
+
+Grupo de SD 29
+
+Repositório T-04-19-29
+
+André Pires         68593   andrepires91@hotmail.com
+Alexandre Pimentel  70554   alexandre__pimentel@hotmail.com
+Filipe Bento        71037   filipe.simoes.bento@gmail.com
+
+-------------------------------------------------------------------------------
+
+Serviço RegistoFatura
+
+Instruções de instalação para Windows
+
+[1] Iniciar servidores
+
+MySQL:
+> create database faturadb;
+> create database faturadb2;
+> create database faturadb3;
+> create database faturadb4;
+> create database faturadb5;
+> create user 'rest'@'localhost' IDENTIFIED BY 'r3st';
+> grant all privileges on * . * to 'rest'@'localhost';
+
+JUDDI:
+> startup
+
+
+[2] abrir directorio que contem a pasta lib de SD+ES 
+mkdir temp
+cd temp
+mkdir SD
+cd SD
+
+
+[3] Obter versão entregue do servidor
+
+svn co svn+ssh://ist1xxxxx@sigma.ist.utl.pt/afs/ist.utl.pt/groups/leic-es/svn/T_04_19_29/registofatura-ws/tags/R_2
+
+[4] Obter versão entregue do cliente
+
+svn co svn+ssh://ist1xxxxx@sigma.ist.utl.pt/afs/ist.utl.pt/groups/leic-es/svn/T_04_19_29/registofatura-ws-cli/tags/R_2
+
+
+[5] Construir, popular e executar servidor
+
+Na directoria de trabalho SD,
+
+> cd registofatura-ws
+> ant clean populate run
+
+
+[6] Construir cliente
+
+Na directoria de trabalho SD,
+
+> cd ...
+> cd registofatura-ws-cli
+> ant clean compile run
+
+-------------------------------------------------------------------------------
+FIM
